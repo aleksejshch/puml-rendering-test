@@ -17,6 +17,9 @@ participant "HW Timer" as Timer
 participant "DAC" as DAC
 participant "SPI" as SPI
 
+note over TestThread
+start to prepare buffers
+end note
 TestThread -> StreamThread : dac_stream_set_buffer()
 TestThread -> StreamThread : dac_stream_set_buffer()
 note right: Send 2 buffers as \n ping-pong logic implemented
