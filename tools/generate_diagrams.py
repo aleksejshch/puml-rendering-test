@@ -5,10 +5,6 @@ import base64
 # PlantUML-specific base64 encoding
 PLANTUML_BASE64 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_"
 
-plantuml_alphabet = string.digits + string.ascii_uppercase + string.ascii_lowercase + '-_'
-base64_alphabet   = string.ascii_uppercase + string.ascii_lowercase + string.digits + '+/'
-b64_to_plantuml = maketrans(base64_alphabet.encode('utf-8'), plantuml_alphabet.encode('utf-8'))
-
 def encode_plantuml_deflate(content):
     if not content.strip().startswith("@startuml"):
         content = "@startuml\n" + content
@@ -19,6 +15,10 @@ def encode_plantuml_deflate(content):
 
     # Pack by zlib (algo DEFLATE)
     compressed = zlib.compress(content.encode("utf-8"))
+
+    # Remove header and control sum in the end:
+    compressed = compressed[2:-4]
+
     print(f"Compressed data (hex): {compressed.hex()}\n")  # Логируем сжатые данные
 
     encoded = base64.b64encode(compressed).decode("utf-8")
@@ -27,18 +27,6 @@ def encode_plantuml_deflate(content):
     # print(f"PlantUML encoded: {encoded}\n")
 
     return encoded
-
-def encode_plantuml_deflate_new(content):
-    if not content.strip().startswith("@startuml"):
-        content = "@startuml\n" + content
-    if not content.strip().endswith("@enduml"):
-        content = content + "\n@enduml"
-
-    zlibbed_str = compress(plantuml_text.encode('utf-8'))
-    compressed_string = zlibbed_str[2:-4]
-
-    return base64.b64encode(compressed_string).translate(b64_to_plantuml).decode('utf-8')
-
 
 def encode_plantuml_hex(content):
     if not content.strip().startswith("@startuml"):
