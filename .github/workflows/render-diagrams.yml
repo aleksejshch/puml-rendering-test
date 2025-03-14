@@ -29,7 +29,7 @@ jobs:
 
       - name: Run script to generate diagrams.md
         run: |
-          python scripts/generate_diagrams.py
+          python tools/generate_diagrams.py
 
       - name: Commit and push changes
         run: |
