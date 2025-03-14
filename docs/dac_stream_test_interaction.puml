@@ -19,7 +19,7 @@ participant "SPI" as SPI
 
 note over TestThread
 start to prepare buffers
-bla
+bla bla
 end note
 TestThread -> StreamThread : dac_stream_set_buffer()
 TestThread -> StreamThread : dac_stream_set_buffer()
