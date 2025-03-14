@@ -1,5 +1,6 @@
 import os
 import zlib
+import base64
 
 # PlantUML-specific base64 encoding
 PLANTUML_BASE64 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_"
@@ -16,20 +17,23 @@ def encode_plantuml_deflate(content):
     compressed = zlib.compress(content.encode("utf-8"))
     print(f"Compressed data (hex): {compressed.hex()}\n")  # Логируем сжатые данные
 
-    # Coding into PlantUML-specific base64
-    encoded = ""
-    buffer = 0
-    bits = 0
-    for byte in compressed:
-        buffer = (buffer << 8) | byte
-        bits += 8
-        while bits >= 6:
-            bits -= 6
-            index = (buffer >> bits) & 0x3F
-            encoded += PLANTUML_BASE64[index]
-    if bits > 0:
-        index = (buffer << (6 - bits)) & 0x3F
-        encoded += PLANTUML_BASE64[index]
+    # # Coding into PlantUML-specific base64
+    # encoded = ""
+    # buffer = 0
+    # bits = 0
+    # for byte in compressed:
+    #     buffer = (buffer << 8) | byte
+    #     bits += 8
+    #     while bits >= 6:
+    #         bits -= 6
+    #         index = (buffer >> bits) & 0x3F
+    #         encoded += PLANTUML_BASE64[index]
+    # if bits > 0:
+    #     index = (buffer << (6 - bits)) & 0x3F
+    #     encoded += PLANTUML_BASE64[index]
+
+    encoded = base64.b64encode(compressed).decode("utf-8")
+    encoded = encoded.translate(str.maketrans("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", PLANTUML_BASE64))
 
     # print(f"PlantUML encoded: {encoded}\n")
 
