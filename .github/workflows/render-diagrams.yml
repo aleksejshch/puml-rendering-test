@@ -2,6 +2,8 @@ name: Render PlantUML Diagrams
 
 on:
   push:
+    branches:
+      - '**'  # Run for all branches
     paths:
       - 'docs/**/*.puml'  # Run only if changed .puml files
 
