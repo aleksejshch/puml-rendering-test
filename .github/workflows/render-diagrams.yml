@@ -3,7 +3,7 @@ name: Render PlantUML Diagrams
 on:
   push:
     paths:
-      - 'diagrams/**/*.puml'  # Run only if changed .puml files
+      - 'docs/**/*.puml'  # Run only if changed .puml files
 
 jobs:
   render:

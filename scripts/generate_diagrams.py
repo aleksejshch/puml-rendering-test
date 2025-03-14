@@ -23,5 +23,4 @@ def generate_markdown(diagrams_folder, output_file):
         file.write(markdown_content)
 
 if __name__ == "__main__":
-    generate_markdown("diagrams", "diagrams.md")
-    
+    generate_markdown("docs", "diagrams.md")
