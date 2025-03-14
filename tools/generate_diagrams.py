@@ -1,4 +1,39 @@
 import os
+import zlib
+
+# PlantUML-specific base64 encoding
+PLANTUML_BASE64 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_"
+
+def encode_plantuml_deflate(content):
+    if not content.strip().startswith("@startuml"):
+        content = "@startuml\n" + content
+    if not content.strip().endswith("@enduml"):
+        content = content + "\n@enduml"
+
+    print(f"Original content:\n{content}\n")
+
+    # Pack by zlib (algo DEFLATE)
+    compressed = zlib.compress(content.encode("utf-8"))
+    print(f"Compressed data (hex): {compressed.hex()}\n")  # Логируем сжатые данные
+
+    # Coding into PlantUML-specific base64
+    encoded = ""
+    buffer = 0
+    bits = 0
+    for byte in compressed:
+        buffer = (buffer << 8) | byte
+        bits += 8
+        while bits >= 6:
+            bits -= 6
+            index = (buffer >> bits) & 0x3F
+            encoded += PLANTUML_BASE64[index]
+    if bits > 0:
+        index = (buffer << (6 - bits)) & 0x3F
+        encoded += PLANTUML_BASE64[index]
+
+    # print(f"PlantUML encoded: {encoded}\n")
+
+    return encoded
 
 def encode_plantuml_hex(content):
     if not content.strip().startswith("@startuml"):
@@ -15,8 +50,9 @@ def encode_plantuml_hex(content):
     return hex_encoded
 
 def generate_plantuml_url(content):
-    hex_encoded = encode_plantuml_hex(content)
-    url = f"https://www.plantuml.com/plantuml/png/{hex_encoded}"
+    # encoded = encode_plantuml_hex(content)
+    encoded = encode_plantuml_deflate(content)
+    url = f"https://www.plantuml.com/plantuml/png/{encoded}"
     print(f"Generated URL: {url}\n")
     return url
 
