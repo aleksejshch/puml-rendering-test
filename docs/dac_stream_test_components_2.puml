@@ -1,0 +1,29 @@
+@startuml
+title DAC Stream Component Diagram
+
+package "DAC Stream System" {
+    component "dac_stream_test" as TestThread
+    component "dac_stream" as StreamThread
+    component "DAC" as DAC
+    component "SPI" as SPI
+    component "HW Timer" as Timer
+}
+
+TestThread --> StreamThread : uses
+StreamThread --> DAC : writes data
+DAC --> SPI : sends data
+StreamThread --> Timer : starts/stops
+
+note right of StreamThread
+    - Uses message queue (msgq)
+    - Implements ping-pong buffering
+    - Manages DAC operations
+end note
+
+note right of DAC
+    - Non-blocking data transmission
+    - Sends data to SPI
+    - Receives SPI callbacks
+end note
+
+@enduml
