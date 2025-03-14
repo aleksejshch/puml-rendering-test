@@ -45,7 +45,6 @@ def encode_plantuml_hex(content):
 def generate_plantuml_url(content):
     # encoded = encode_plantuml_hex(content)
     encoded = encode_plantuml_deflate(content)
-    encoded = encode_plantuml_deflate_new(content)
     url = f"https://www.plantuml.com/plantuml/png/{encoded}"
     print(f"Generated URL: {url}\n")
     return url
