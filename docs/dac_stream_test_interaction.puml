@@ -1,0 +1,54 @@
+@startuml
+title DAC Stream Thread Interaction Diagram
+
+participant TestThread [
+=dac_stream_test
+----
+""Test thread""
+]
+participant StreamThread [
+=dac_stream
+----
+""High-priority thread
+with msgq and
+ping-pong bufferization""
+]
+participant "HW Timer" as Timer
+participant "DAC" as DAC
+participant "SPI" as SPI
+
+TestThread -> StreamThread : dac_stream_set_buffer()
+TestThread -> StreamThread : dac_stream_set_buffer()
+note right: Send 2 buffers as \n ping-pong logic implemented
+TestThread -> StreamThread : dac_stream_start()
+StreamThread -> Timer : hw_timer_start()
+activate Timer
+StreamThread -> TestThread : submit_callback(kDacStreamEvtStarted)
+Timer -> StreamThread : sample_timer_cb() (kEvtSampleTimer)
+StreamThread -> DAC : dac_write_value()
+DAC -> SPI : Send data (non-blocking)
+SPI --> DAC : transmission complete
+Timer -> StreamThread : sample_timer_cb() (kEvtSampleTimer)
+note over StreamThread, Timer
+Send all samples from buffer by
+dac_write_value()
+end note
+StreamThread -> TestThread : submit_callback(kDacStreamEvtBufSent)
+note over TestThread
+Here you have time to prepare next buffer
+while one more is sending to DAC
+end note
+TestThread -> StreamThread : dac_stream_set_buffer()
+note over StreamThread, Timer
+Same sequence as for prev. buffer
+end note
+note over TestThread
+If all buffers were sent just waiting for kDacStreamEvtAllBufsSent
+event or stop dac_stream right now by dac_stream_stop
+end note
+StreamThread -> Timer : hw_timer_stop()
+deactivate Timer 
+StreamThread -> TestThread : submit_callback(kDacStreamEvtAllBufsSent)
+
+
+@enduml
